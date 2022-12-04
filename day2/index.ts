@@ -5,8 +5,49 @@ const input = readFileSync('./input.txt', 'utf-8');
 // B X
 // C Z`;
 
+// X means you need to lose, Y means you need to end the round in a draw, and Z means you need to win.
+
 const score = input.split('\n').reduce((acc, curr) => acc + calculateMatchScore(curr), 0);
 console.log(`score = ${score}`);
+
+const score2 = input.split('\n').reduce((acc, curr) => acc + calculateMatchScorePartTwo(curr), 0);
+console.log(`score2 = ${score2}`);
+
+
+
+function calculateMatchScorePartTwo(matchLine: string) {
+    const [opponent, you] = matchLine.split(' ');
+    const youNormalized = determineShapeToPlay(opponent, you);
+    return scoreShapesOutcome(youNormalized, opponent) + scoreSelectedShape(youNormalized);
+}
+
+function determineShapeToPlay(opponent: string, desiredOutcome: string): string {
+    switch(desiredOutcome) {
+        case 'X': return shapeNeededToLose(opponent);
+        case 'Z': return shapeNeededToWin(opponent);
+        case 'Y': 
+        default: 
+          return opponent;
+    }
+}
+
+function shapeNeededToWin(opponent: string) {
+    switch(opponent) {
+        case 'A': return 'B';
+        case 'B': return 'C';
+        case 'C': return 'A';
+        default: throw new Error('wut');
+    }
+}
+
+function shapeNeededToLose(opponent: string) {
+    switch(opponent) {
+        case 'A': return 'C';
+        case 'B': return 'A'
+        case 'C': return 'B';
+        default: throw new Error('wut');
+    }
+}
 
 function calculateMatchScore(matchLine: string) {
     const [opponent, you] = matchLine.split(' ');
