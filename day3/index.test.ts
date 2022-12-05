@@ -16,6 +16,31 @@ test('items in both Compartiments', () => {
     expect(itemsInBothCompartiments('jqHRNqRjqzjGDLGL', 'rsFMfFZSrLrFZsSL')).toEqual(['L']);
 });
 
+const puzzlePartTwoValue = groupPerThreeElves(
+        input.split('\n')
+            .map(compartiments => itemsInBothCompartiments(compartiments[0], compartiments[1]))
+    )
+    .map(groupOfElves => groupOfElves)
+    
+// for every group, find which letters are matchingover all elves
+
+// .map(line => splitCompartiments(line))
+// .map(compartiments => itemsInBothCompartiments(compartiments[0], compartiments[1]))
+// .flat()
+// .map(itemsInBothCompartiments => valueOfItem(itemsInBothCompartiments))
+// .reduce((acc,curr) => acc+curr, 0);
+
+
+function groupPerThreeElves(items: Array<T>, amountPerBucket): Array<Array<T>> {
+    return items.reduce((acc, curr, currIdx) => {
+        const bucketIndex = math.floor(currIdx / amountPerBucket);
+        if(acc[bucketIndex] === undefined) {
+            acc[bucketindex] = new Array<T>();
+        }
+        acc[bucketIndex].push(curr);
+        return acc;
+    }, new Array<Array<T>>())
+}
 
 const puzzlePartOneValue = input
     .split('\n')
