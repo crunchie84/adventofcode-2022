@@ -128,7 +128,7 @@ test('loads stacks from input', () => {
 // });
 
 
-function executeMove(move: string, currentStacks:Stacks):Stacks {
+function executeMove(move: string, currentStacks:Stacks): Stacks {
     const [ amountOfMovesToDo, from, to ] = move
         .split(' ')
         .map(i => parseInt(i, 10))
@@ -161,16 +161,16 @@ test('execute move on inverted stackArray correctly', () => {
 });
 
 
-function executeAllMoves(initialStacks:Stacks, moveCommands: Array<string>) :Stacks {
+function executeAllMoves(moveFnc: (move: string, currentStacks:Stacks) => Stacks, initialStacks:Stacks, moveCommands: Array<string>) :Stacks {
     return moveCommands.reduce((stacks, moveCommand) => {
-        return executeMove(moveCommand, stacks)
+        return moveFnc(moveCommand, stacks)
     }, initialStacks)
 }
 
 test('executes all moves from input', () => {
     const stacksFromInput = extractStacksSetupFromInput(input);
     const moveCommandsFromInput = extractMoveCommandsFromInput(input);
-    const finalStacks = executeAllMoves(createInvertedStacksArrayFromInput(stacksFromInput), moveCommandsFromInput);
+    const finalStacks = executeAllMoves(executeMove, createInvertedStacksArrayFromInput(stacksFromInput), moveCommandsFromInput);
     
     expect(finalStacks).toEqual([
         ['C'],
@@ -195,5 +195,5 @@ test('get topMostCrates from stacks', () => {
 // day 5-1 solution
 const stacksFromInput = extractStacksSetupFromInput(puzzleInput);
 const moveCommandsFromInput = extractMoveCommandsFromInput(puzzleInput);
-const finalStacks = executeAllMoves(createInvertedStacksArrayFromInput(stacksFromInput), moveCommandsFromInput);
+const finalStacks = executeAllMoves(executeMove, createInvertedStacksArrayFromInput(stacksFromInput), moveCommandsFromInput);
 console.log(`day5-1: ${getTopCrates(finalStacks)}`)
