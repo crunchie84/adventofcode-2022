@@ -11,6 +11,8 @@ move 3 from 1 to 3
 move 2 from 2 to 1
 move 1 from 1 to 2`;
 
+type Stacks = Array<Array<string>>;
+
 function createStackRowArray(input: string): Array<string> {
     return input.match(/.{1,4}/g) || [];
 }
@@ -43,7 +45,7 @@ function extractMoveCommandsFromInput(input: string): Array<string> {
     return input.split('\n\n')[1].split('\n');
 }
 
-function createInvertedStacksArrayFromInput(initialStacksFromInput: Array<string>): Array<Array<string>> {
+function createInvertedStacksArrayFromInput(initialStacksFromInput: Array<string>):Stacks {
     // flip the array's because that is easier
     const newStacksArray = initialStacksFromInput
         .reverse() /* start with the bottom */
@@ -60,7 +62,7 @@ function createInvertedStacksArrayFromInput(initialStacksFromInput: Array<string
                 }
             });
             return flippedStacksArray;
-        }, new Array<Array<string>>());
+        }, new Array<Array<string>>() as Stacks);
     return newStacksArray;
 }
 
@@ -74,7 +76,7 @@ test('loads stacks from input', () => {
     ])
 
     // this was horrible
-    // const stacksArray = new Array<Array<String>>();
+    // const stacksArray = newStacks();
     // stacks
     //     .reverse() // start with the botttom
     //     .forEach((row, rowIndex) => {
@@ -101,7 +103,7 @@ test('loads stacks from input', () => {
 //         ['','D',''],
 //     ];
 
-//     function executeMove(move: string, currentStacks: Array<Array<string>>): Array<Array<string>> {
+//     function executeMove(move: string, currentStacks:Stacks):Stacks {
 //         const { _, amountOfMovesToDo, _2, from, _3, to } = move.split(' ');
 
 //         let movesDone = 0;
@@ -126,7 +128,7 @@ test('loads stacks from input', () => {
 // });
 
 
-function executeMove(move: string, currentStacks: Array<Array<string>>): Array<Array<string>> {
+function executeMove(move: string, currentStacks:Stacks):Stacks {
     const [ amountOfMovesToDo, from, to ] = move
         .split(' ')
         .map(i => parseInt(i, 10))
@@ -159,7 +161,7 @@ test('execute move on inverted stackArray correctly', () => {
 });
 
 
-function executeAllMoves(initialStacks: Array<Array<string>>, moveCommands: Array<string>) : Array<Array<string>> {
+function executeAllMoves(initialStacks:Stacks, moveCommands: Array<string>) :Stacks {
     return moveCommands.reduce((stacks, moveCommand) => {
         return executeMove(moveCommand, stacks)
     }, initialStacks)
@@ -177,7 +179,7 @@ test('executes all moves from input', () => {
     ]);
 });
 
-function getTopCrates(input: Array<Array<string>>) : string {
+function getTopCrates(input:Stacks) : string {
     return input.reduce((acc, curr) => `${acc}${curr[curr.length-1]}`, '');
 }
 
