@@ -160,6 +160,42 @@ test('execute move on inverted stackArray correctly', () => {
     ])
 });
 
+function executeMultipleCratesAtOnceMove(move: string, currentStacks:Stacks): Stacks {
+    const [ amountOfMovesToDo, from, to ] = move
+        .split(' ')
+        .map(i => parseInt(i, 10))
+        .filter(i => !Number.isNaN(i));
+
+    let movesExecuted = 0;
+    const crates = new Array<string>();
+    while (movesExecuted < amountOfMovesToDo) {
+        const crate = currentStacks[from-1].pop();
+        if (crate !== undefined) {
+            crates.push(crate);
+        }
+        movesExecuted++;
+    }
+    currentStacks[to-1] = currentStacks[to-1].concat(crates.reverse());
+
+    return currentStacks;
+}
+
+
+test('execute multi-move on inverted stackArray correctly', () => {
+    const move = 'move 3 from 1 to 3';
+    const input = [
+        ['Z', 'N'],
+        ['M', 'C', 'D'],
+        ['P'],
+    ];
+
+    expect(executeMultipleCratesAtOnceMove(move, input)).toEqual([
+        [],
+        ['M', 'C', 'D', ],
+        ['P', 'Z', 'N'],
+    ])
+});
+
 
 function executeAllMoves(moveFnc: (move: string, currentStacks:Stacks) => Stacks, initialStacks:Stacks, moveCommands: Array<string>) :Stacks {
     return moveCommands.reduce((stacks, moveCommand) => {
@@ -167,15 +203,49 @@ function executeAllMoves(moveFnc: (move: string, currentStacks:Stacks) => Stacks
     }, initialStacks)
 }
 
-test('executes all moves from input', () => {
+test('executes all moves from input with singlemover', () => {
     const stacksFromInput = extractStacksSetupFromInput(input);
     const moveCommandsFromInput = extractMoveCommandsFromInput(input);
     const finalStacks = executeAllMoves(executeMove, createInvertedStacksArrayFromInput(stacksFromInput), moveCommandsFromInput);
-    
+
     expect(finalStacks).toEqual([
         ['C'],
         ['M'],
         ['P','D','N','Z']
+    ]);
+});
+
+test('execute single multimove correctly', () => {
+    expect(
+        executeMultipleCratesAtOnceMove('move 1 from 2 to 1', [['Z','N'],['M','C','D'],['P']])
+    ).toEqual([['Z', 'N', 'D' ], ['M', 'C'], ['P']]);
+
+    expect(
+        executeMultipleCratesAtOnceMove('move 5 from 2 to 1', [['Z','N'],['M','C','D'],['P']])
+    ).toEqual([['Z', 'N', 'M','C','D' ], [], ['P']]);
+});
+
+test('executes all moves from input with multiMover', () => {
+    const stacksFromInput = extractStacksSetupFromInput(input);
+    const moveCommandsFromInput = extractMoveCommandsFromInput(input);
+
+    const initial = createInvertedStacksArrayFromInput(stacksFromInput);
+    expect(initial).toEqual([['Z','N'],['M','C','D'],['P']]);
+
+    const afterMoveOne = executeMultipleCratesAtOnceMove('move 1 from 2 to 1', initial);
+    expect(afterMoveOne).toEqual([['Z', 'N', 'D' ], ['M', 'C'], ['P']]);
+    
+    const afterMoveTwo = executeMultipleCratesAtOnceMove('move 3 from 1 to 3', afterMoveOne);
+    expect(afterMoveTwo).toEqual([[], ['M','C'], ['P', 'Z', 'N', 'D']]);
+    
+    const afterMoveThree = executeMultipleCratesAtOnceMove('move 2 from 2 to 1', afterMoveTwo);
+    expect(afterMoveThree).toEqual([['M','C'], [], ['P', 'Z', 'N', 'D']]);
+
+    const afterMoveFour = executeMultipleCratesAtOnceMove('move 1 from 1 to 2', afterMoveThree);
+    expect(afterMoveFour).toEqual([
+        ['M'],
+        ['C'],
+        ['P','Z','N','D']
     ]);
 });
 
@@ -195,5 +265,13 @@ test('get topMostCrates from stacks', () => {
 // day 5-1 solution
 const stacksFromInput = extractStacksSetupFromInput(puzzleInput);
 const moveCommandsFromInput = extractMoveCommandsFromInput(puzzleInput);
+
+console.log(`total move commands: ${moveCommandsFromInput.length}`);
+
 const finalStacks = executeAllMoves(executeMove, createInvertedStacksArrayFromInput(stacksFromInput), moveCommandsFromInput);
 console.log(`day5-1: ${getTopCrates(finalStacks)}`)
+
+// day 5-2
+const finalStacksPart2 = executeAllMoves(executeMultipleCratesAtOnceMove, createInvertedStacksArrayFromInput(stacksFromInput), moveCommandsFromInput);
+console.log(`day5-2: ${getTopCrates(finalStacksPart2)}`)
+
