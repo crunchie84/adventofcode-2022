@@ -10,17 +10,25 @@ function uniqueCharsInChunk(input: string): Number {
     return uniqueChars;
 }
 
-function findStartOfPacketMarker(input: string): Number {
+function _findIndexOfUniqueChars(input: string, uniqueCharsNeeded: number): number {
     let idx = 0;
-    while ((idx + 4) < input.length){
-        const chunk = input.substring(idx, idx + 4);
+    while ((idx + uniqueCharsNeeded) < input.length){
+        const chunk = input.substring(idx, idx + uniqueCharsNeeded);
         //console.log(`idx=${idx}, chunk=${chunk}, uniqueChars=${uniqueCharsInChunk(chunk)}`);
-        if (uniqueCharsInChunk(chunk) === 4) {
-            return 4 + idx; // needs to return last char read as 'first char of data'
+        if (uniqueCharsInChunk(chunk) === uniqueCharsNeeded) {
+            return uniqueCharsNeeded + idx; // needs to return last char read as 'first char of data'
         }
         idx++;
     }
     return -1;
+}
+
+function findStartOfPacketMarker(input: string): Number {
+    return _findIndexOfUniqueChars(input, 4);
+}
+
+function findStartOfMessageMarker(input: string): Number {
+    return _findIndexOfUniqueChars(input, 14);
 }
 
 test('counting unique chars in substring', () => {
@@ -37,4 +45,13 @@ test('correct position of marker', () => {
     expect(findStartOfPacketMarker('zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw')).toEqual(11);
 });
 
+test('correct position of message part', () => {
+    expect(findStartOfMessageMarker('mjqjpqmgbljsphdztnvjfqwrcgsmlb')).toEqual(19);
+    expect(findStartOfMessageMarker('bvwbjplbgvbhsrlpgdmjqwftvncz')).toEqual(23);
+    expect(findStartOfMessageMarker('nppdvjthqldpwncqszvftbrmjlhg')).toEqual(23);
+    expect(findStartOfMessageMarker('nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg')).toEqual(29);
+    expect(findStartOfMessageMarker('zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw')).toEqual(26);
+});
+
 console.log(`day 6-1=${findStartOfPacketMarker(puzzleInput)}`);
+console.log(`day 6-2=${findStartOfMessageMarker(puzzleInput)}`);
