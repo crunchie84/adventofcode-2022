@@ -165,15 +165,9 @@ function parseCommandOutput(puzzleInput: string): dir {
             const commandLine = lines.shift() || '';
 
             const [command, optionalCommandArg] = commandLine.split(' ');
-
-            if (command === 'ls') {
-                return ls(wd, lines);
-            }
+            if (command === 'ls') return ls(wd, lines);
+            if (command === 'cd') return cd(wd, optionalCommandArg)
             
-            if (command === 'cd') {
-                return cd(wd, optionalCommandArg)
-            }
-
             throw new Error(`unknown command: ${command} (currentInex=${currentIndex})`)
         }, createDir('/', undefined));
     
@@ -226,26 +220,18 @@ console.log(`day7-2, space to free up = ${spaceToFreeUp}`);
 
 // order all directories in a flat list
 function getAllDirectoriesRecursive(wd: dir) : Array<dir> {
-    //console.log('retrieving dir: ', wd.name);
     const subDirs = wd.items
         .filter(item => instanceOfDir(item))
         .map(item => getAllDirectoriesRecursive(item as dir))
         .flat();
-    if (wd.name === '/') {
-        printDirsArray(subDirs);
-    }
 
-    return wd.name === '/' ? [wd].concat(subDirs): subDirs;
+    return [wd].concat(subDirs);
 }
 
 const dirs = getAllDirectoriesRecursive(day7FileSystem);
-dirs.sort((a, b) => a.size - b.size)
+const smallest = dirs
+    .filter(d => d.size > spaceToFreeUp)
+    .sort((a, b) => a.size - b.size)
+    [0];
 
-
-
-const smallest = dirs.filter(d => d.size < spaceToFreeUp)[0];
 console.log(`day7-2: size of smallest folder to delete = ${smallest.size}`);
-
-function printDirsArray(dirs: Array<dir>): void {
-    console.log(`dirs: ${dirs.reduce((acc,curr) => acc+'\n'+curr.name, '')}`);
-}
